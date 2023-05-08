@@ -1,6 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CountriesApiService } from '../services/countries-api.service';
 import { CountryModel } from '../models/country.model';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+import { CountryFormComponent } from '../country-form/country-form.component';
 
 @Component({
   selector: 'app-countries',
@@ -8,16 +12,19 @@ import { CountryModel } from '../models/country.model';
   styleUrls: ['./countries.component.css']
 })
 export class CountriesComponent implements OnInit{
-  countries: CountryModel[] = [];
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  constructor(private countriesApi: CountriesApiService){
+  displayedColumns: string[] = ['id','name', 'capital', 'continent', 'population', 'actions'];
+  dataSource: any;
+
+  constructor(private countriesApi: CountriesApiService, private dialogRef: MatDialog){
 
   }
 
   ngOnInit(): void {
     this.countriesApi.getAll().subscribe(res => {
       console.log(res);
-      this.countries = res.map((country:any) => {
+      this.dataSource = new MatTableDataSource<CountryModel>(res.map((country:any) => {
         return {
           id: country.id,
           name: country.name,
@@ -25,12 +32,24 @@ export class CountriesComponent implements OnInit{
           continent: country.continent,
           population: country.population
         }
-      })
+      }))
+      this.dataSource.paginator = this.paginator;
     });
   }
 
-  update(): void{
-    console.log("UPDATE!!!!")
+  openDialog(country: CountryModel): void{
+    const dialogRef = this.dialogRef.open(CountryFormComponent, {
+      width: '500px',
+      backdropClass: 'custom-dialog-backdrop-class',
+      panelClass: 'custom-dialog-panel-class',
+      data: country
+    })
+
+    dialogRef.afterClosed().subscribe(result =>{
+      if(result.event === 'submit'){
+        this.countriesApi.updateCountry(country.id.toString(), result.data).subscribe();
+      }
+    });
   }
 
 }
