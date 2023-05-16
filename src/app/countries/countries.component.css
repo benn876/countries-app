@@ -1,6 +1,12 @@
-table {
-    width: 50%;
-  }
+.card{
+  width: 50%;
+  margin:auto;
+  padding-top: 10px;
+}
+
+.add-button{
+  margin: 10px 10px 10px 10px;
+}
 
 .tableContainer{
     border: 1px solid lightgray;

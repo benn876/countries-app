@@ -37,7 +37,7 @@ export class CountriesComponent implements OnInit{
     });
   }
 
-  openDialog(country: CountryModel): void{
+  openDialog(country?: CountryModel): void{
     const dialogRef = this.dialogRef.open(CountryFormComponent, {
       width: '500px',
       backdropClass: 'custom-dialog-backdrop-class',
@@ -46,9 +46,19 @@ export class CountriesComponent implements OnInit{
     })
 
     dialogRef.afterClosed().subscribe(result =>{
-      if(result.event === 'submit'){
+      if(result.event === 'submit' && country){
         this.countriesApi.updateCountry(country.id.toString(), result.data).subscribe();
+        location.reload();
+      } else if(result.event === 'add'){
+        this.countriesApi.addCountry(result.data).subscribe();
       }
+    });
+  }
+
+  deleteCountry(id: string): void{
+    this.countriesApi.deleteCountry(id).subscribe(res=>{
+      console.log(res);
+      location.reload();
     });
   }
 
